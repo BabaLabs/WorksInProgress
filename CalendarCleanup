@@ -1,0 +1,29 @@
+#This prompts the user to type in their O365 admin account
+$AdminAccount = Read-Host "Please enter the O365 Admin email address"
+
+Write-Host "Please press Enter..."
+
+#I put this in here because for some reason it was requiring Enter to be pressed twice and I wanted people to understand
+$null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
+
+#Connects the user to Exchange Online using the email address provided. They will get a pop-up prompt for password and MFA where applicable
+Connect-ExchangeOnline -UserPrincipalName $AdminAccount 
+
+# Prompt for mailbox username
+$username = Read-Host "Enter the mailbox username:"
+
+# Prompt for number of days to go back
+$days = Read-Host "Enter the number of days to go back:"
+
+# Calculate the date for the specified number of days ago
+$olderThan = (Get-Date).AddDays(-$days)
+
+# Search the mailbox for calendar entries older than the specified number of days
+$results = Search-Mailbox -Identity $username -SearchQuery "Kind:Calendar AND Received:<$olderThan" -SearchDumpster -DeleteContent $false
+
+# Iterate through the results and delete the single instances of the calendar entries
+foreach ($result in $results) {
+  $startDate = $result.Item.Recurrence.StartDate
+  Remove-CalendarItem -Identity $result.ItemId.UniqueId -DeleteType SpecificDate -StartDate $startDate
+  Write-Host "Deleted single instance of calendar entry starting on $startDate"
+}
