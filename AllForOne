@@ -1,0 +1,18 @@
+# Get the delegate's name and permission level
+$Delegate = Read-Host -Prompt "Enter the name of the delegate (e.g. John Doe)"
+$Permission = (New-Object -ComObject Wscript.Shell).Popup("Select a permission level:",0,"Permission Level",4,"Reviewer","Editor")
+if ($Permission -eq 1) {
+    $Permission = "Reviewer"
+}
+elseif ($Permission -eq 2) {
+    $Permission = "Editor"
+}
+
+# Get a list of all active and licensed users
+$Users = Get-User -Filter {(RecipientTypeDetails -eq 'UserMailbox') -and (IsLicensed -eq 'True')}
+
+# Add delegate as a delegate for the calendar of all active and licensed users
+foreach ($User in $Users) {
+    $UserIdentity = $User.UserPrincipalName
+    Add-MailboxFolderPermission -Identity "$UserIdentity:\Calendar" -User $Delegate -AccessRights $Permission
+}
