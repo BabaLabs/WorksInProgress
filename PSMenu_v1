@@ -1,0 +1,60 @@
+#This prompts the user to type in their O365 admin account
+$AdminAccount = Read-Host "Please enter the O365 Admin email address"
+
+Write-Host "Please press Enter..."
+
+#I put this in here because for some reason it was requiring Enter to be pressed twice and I wanted people to understand
+$null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
+
+#Connects the user to Exchange Online using the email address provided. They will get a pop-up prompt for password and MFA where applicable
+Connect-ExchangeOnline -UserPrincipalName $AdminAccount 
+
+# Present interactive menu
+while ($true) {
+    Write-Host "Select an option:"
+    Write-Host "1. Add mailbox delegation"
+    Write-Host "2. Remove mailbox delegation"
+    Write-Host "3. Add calendar delegation"
+    Write-Host "4. Remove calendar delegation"
+    Write-Host "5. Exit"
+    $choice = Read-Host
+
+    switch ($choice) {
+        1 {
+            # Prompt for user and delegate
+            $user = Read-Host "Enter the email address of the user whose mailbox you want to delegate"
+            $delegate = Read-Host "Enter the email address of the delegate"
+            Add-MailboxPermission -Identity $user -User $delegate -AccessRights FullAccess
+            Write-Host "Mailbox delegation added successfully!"
+        }
+        2 {
+            # Prompt for user and delegate
+            $user = Read-Host "Enter the email address of the user whose mailbox delegation you want to remove"
+            $delegate = Read-Host "Enter the email address of the delegate"
+            Remove-MailboxPermission -Identity $user -User $delegate -AccessRights FullAccess
+            Write-Host "Mailbox delegation removed successfully!"
+        }
+        3 {
+            # Prompt for user and delegate
+            $user = Read-Host "Enter the email address of the user whose calendar you want to delegate"
+            $delegate = Read-Host "Enter the email address of the delegate"
+            Add-MailboxFolderPermission -Identity "${user}:\Calendar" -User $delegate -AccessRights Editor
+            Write-Host "Calendar delegation added successfully!"
+        }
+        4 {
+            # Prompt for user and delegate
+            $user = Read-Host "Enter the email address of the user whose calendar delegation you want to remove"
+            $delegate = Read-Host "Enter the email address of the delegate"
+            Remove-MailboxFolderPermission -Identity "${user}:\Calendar" -User $delegate
+            Write-Host "Calendar delegation removed successfully!"
+        }
+        5 {
+            # Exit script
+            Write-Host "Exiting..."
+            exit
+        }
+        default {
+            Write-Host "Invalid choice. Try again."
+        }
+    }
+}
