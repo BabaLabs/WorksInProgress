@@ -1,3 +1,14 @@
+#This prompts the user to type in their O365 admin account
+$AdminAccount = Read-Host "Please enter the O365 Admin email address"
+
+Write-Host "Please press Enter..."
+
+#I put this in here because for some reason it was requiring Enter to be pressed twice and I wanted people to understand
+$null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
+
+#Connects the user to Exchange Online using the email address provided. They will get a pop-up prompt for password and MFA where applicable
+Connect-ExchangeOnline -UserPrincipalName $AdminAccount 
+
 # Get the delegate's name and permission level
 $Delegate = Read-Host -Prompt "Enter the name of the delegate (e.g. John Doe)"
 $Permission = (New-Object -ComObject Wscript.Shell).Popup("Select a permission level:",0,"Permission Level",4,"Reviewer","Editor")
