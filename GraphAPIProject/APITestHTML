@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Create a new user account</title>
+    <script src="path/to/your/javascript.js"></script>
+  </head>
+  <body>
+    <form id="create-user-form">
+      <h1>Create a new user account</h1>
+      
+      <label for="first-name">First Name:</label>
+      <input type="text" id="first-name" name="first-name" required>
+      
+      <label for="last-name">Last Name:</label>
+      <input type="text" id="last-name" name="last-name" required>
+
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email" required>
+
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" required>
+
+      <label for="licenses">Select a license:</label>
+      <select id="licenses" name="licenses">
+        <option value=""></option>
+        <option value="license1">License 1</option>
+        <option value="license2">License 2</option>
+        <option value="license3">License 3</option>
+      </select>
+
+      <button type="submit" onclick="createUser()">Submit</button>
+    </form>
+  </body>
+</html>
