@@ -1,0 +1,136 @@
+const clientId = "your_client_id";
+const redirectUri = "your_redirect_uri";
+const scope = "openid User.Read";
+const authorizeUrl = `https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=${clientId}&response_type=id_token&redirect_uri=${redirectUri}&scope=${scope}&response_mode=fragment&state=12345`;
+const token = sessionStorage.getItem("token");
+if(!token){
+    // Redirect the user to the authorizeUrl
+    window.location.href = authorizeUrl;
+}
+
+// Add an event listener to the form to handle the submit event
+document.getElementById("create-user-form").addEventListener("submit", function(event) {
+  event.preventDefault();
+  
+  // Validate the form input fields
+  if (!validateForm()) {
+    return;
+  }
+  
+  // Extract the access token from the URL hash fragment
+  var hash = window.location.hash;
+  var access_token = hash.substring(hash.indexOf("access_token=") + "access_token=".length, hash.indexOf("&"));
+  
+  // Use the access token to call the Microsoft Graph API
+  var headers = new Headers();
+  headers.append("Authorization", "Bearer " + access_token);
+  headers.append("Content-Type", "application/json");
+  
+  var userDetails = {
+    accountEnabled: true,
+    displayName: document.getElementById("first-name").value + " " + document.getElementById("last-name").value,
+    mailNickname: document.getElementById("username").value,
+    passwordProfile: {
+      password: document.getElementById("password").value,
+      forceChangePasswordNextSignIn: true
+    },
+    userPrincipalName: document.getElementById("username").value + "@babalabs.net",
+    usageLocation: "US"
+  };
+  
+  // Call the Microsoft Graph API to create the user
+  fetch('https://graph.microsoft.com/v1.0/users', {
+    method: 'POST',
+    headers: headers,
+    body: JSON.stringify(userDetails)
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error("Error creating user: " + response.statusText);
+    }
+    return response.json();
+  })
+  .then(data => {
+    // Check if the user was created successfully
+    if (data.id) {
+      // Assign a license to the user
+      var license = document.getElementById("license").value;
+      var skuId = license.split(":")[0];
+      var tenantId = license.split(":")[1];
+      
+      fetch(`https://graph.microsoft.com/v1.0/users/${data.id}/assignLicense`, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({
+          addLicenses: [{
+            skuId: skuId,
+            tenantId: tenantId
+          }],
+          removeLicenses: []
+        })
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Error assigning license: " + response.statusText);
+        }
+        return response.json();
+      })
+      .then(data => {
+        // Check if the license was assigned successfully
+        if (data.value) {
+          // License was assigned successfully
+          alert("User was created and licensed successfully!");
+        } else {
+          // Handle error
+          alert("Error assigning license: " + data.error.message);
+        }
+      })
+      .catch(error => {
+        // Handle error
+        console.log(error);
+        alert("Error: " + error.message);
+      });
+    } else {
+      // Handle error
+      alert("Error creating user: " + data.error.message);
+    }
+  })
+  .catch(error => {
+    // Handle error
+    console.log(error);
+    alert("Error: " + error.message);
+  });
+});
+
+// Add a function to validate the form input fields
+function validateForm() {
+  var isValid = true;
+  var firstName = document.getElementById("first-name").value;
+  var lastName = document.getElementById("last-name").value;
+  var username = document.getElementById("username").value;
+  var password = document.getElementById("password").value;
+  var license = document.getElementById("license").value;
+  
+  if (firstName === "") {
+    alert("First name is required");
+    isValid = false;
+  }
+  if (lastName === "") {
+    alert("Last name is required");
+    isValid = false;
+  }
+  if (username === "") {
+    alert("Username is required");
+    isValid = false;
+  }
+  if (password === "") {
+    alert("Password is required");
+    isValid = false;
+  }
+  if (license === "") {
+    alert("License is required");
+    isValid = false;
+  }
+  
+  return isValid;
+}
