@@ -1,0 +1,25 @@
+This project aims to automate the process of creating new users in Microsoft Azure Active Directory (AAD) and assigning licenses to them. The project is designed to be used by organizations that need to frequently create new users and assign them licenses, such as in a new employee onboarding process.
+
+The project consists of a web-based form that allows users to input the necessary information to create a new user in AAD, such as first name, last name, and username. Additionally, the form provides options for selecting a license to assign to the new user from a list of available licenses in the tenant. At the current time, this project only allows for basic user creation. Adding things like mailbox/calendar delegation, and Distribution Group access is not available but could potentially be added in the future.
+
+The form is built using HTML, JavaScript, and other web technologies, and it uses the Microsoft Graph API to create new users and assign licenses.
+
+The web-based form is the main user interface of the project, where users input the necessary information to create a new user in AAD. The form includes fields for first name, last name, username, email, and password, as well as options for selecting a license to assign to the new user from a list of available licenses in the tenant.
+
+Once the user fills out the form, the JavaScript code in the web-app validates the form input and extracts the user's input from the form.
+
+The web-app then uses the Microsoft Graph API to create the new user in AAD, passing the user's input as part of the API call. This creates a new user account in AAD with the specified first name, last name, and username, and assigns an email and password to the new user.
+
+The web-app also uses the Microsoft Graph API to assign the selected license to the new user, passing the license details as part of the API call. This assigns the specified license to the new user, enabling them to use the associated services.
+
+As for security, the web-app uses Azure Active Directory (AAD) to authenticate users before they can submit the form. This requires users to sign in with their Microsoft account, which ensures that only authorized users can create new users and assign licenses.
+
+The web-app also uses OAuth2 and the OpenID Connect protocol to secure the communication between the web-app and AAD. This ensures that the user's information and the access token used to call the Microsoft Graph API are securely exchanged and stored.
+
+To further secure the web-app and ensure that only authorized tenants have access to use the web-form, the app registration in Azure AD can be configured with tenant restrictions. This limits the availability of the web-form to specific tenants, ensuring that only users from those tenants can access the form and create new users.
+
+By adding tenant restrictions to your app registration in Azure AD, it limits the availability of your app to specific tenants. You can specify a list of tenant IDs that are allowed to use your app. This can be used to allow only tenants that RapidScale works with to be able to use the web-app. This makes it more difficult for unauthorized parties to use the web-form to create new users in a tenant that they should not have access to, adding an extra layer of security to the overall process.
+
+Additionally, the app-web also use Multi-Tenant Authentication, which means that the web-app is registered as a multi-tenant application in Azure Active Directory (AAD) and is configured to allow users from any tenant to authenticate, as long as they are listed in the Tenant Restrictions for the app registration. This allows the users to create new users in their own tenant, while having the app hosted in a central location. Doing it this way eliminates the need to have the app be hosted on each tenant, allowing this tool to be used by any of our customers.
+
+Overall, this project provides an efficient and user-friendly solution for automating the process of creating new users and assigning licenses in AAD. It can save organizations a significant amount of time and effort, and it can be easily customized to meet the specific needs of different organizations. Since it is a web-app this could be attached to the RapidScale Portal as a button that re-directs them to the form. This could cut down on overall number of calls and cases that are put in just to create new users.
